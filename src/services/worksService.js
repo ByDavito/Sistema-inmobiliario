@@ -9,6 +9,7 @@ const userWorks = {
       name: 'Edificio Residencial',
       description: 'Proyecto de edificio residencial en Buenos Aires',
       cityId: '1',
+      neighborhood: 'Palermo',
       lng: -58.381636, lat: -34.603707,
       status: 'ACTIVE',
       propertyType: 'edificio',
@@ -18,6 +19,10 @@ const userWorks = {
       bathrooms: 4,
       hasPatio: false,
       hasGarage: true,
+      images: [
+        { id: 'img1', url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400', order: 0 },
+        { id: 'img2', url: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400', order: 1 }
+      ]
     },
     {
       id: '2',
@@ -25,6 +30,7 @@ const userWorks = {
       name: 'Casa Familiar',
       description: 'Casa familiar en Córdoba',
       cityId: '2',
+      neighborhood: 'Cerro de las Rosas',
       lng: -64.1888, lat: -31.4201,
       status: 'ACTIVE',
       propertyType: 'casa',
@@ -34,6 +40,10 @@ const userWorks = {
       bathrooms: 2,
       hasPatio: true,
       hasGarage: true,
+      images: [
+        { id: 'img3', url: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400', order: 0 },
+        { id: 'img4', url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400', order: 1 }
+      ]
     },
   ],
   '4': [  // juan@test.com
@@ -43,6 +53,7 @@ const userWorks = {
       name: 'Local Comercial',
       description: 'Local comercial en Rosario',
       cityId: '3',
+      neighborhood: 'Centro',
       lng: -60.6393, lat: -32.9468,
       status: 'ACTIVE',
       propertyType: 'local',
@@ -52,6 +63,10 @@ const userWorks = {
       bathrooms: 1,
       hasPatio: false,
       hasGarage: false,
+      images: [
+        { id: 'img5', url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400', order: 0 },
+        { id: 'img6', url: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=400', order: 1 }
+      ]
     },
   ],
   '5': [  // maria@test.com
@@ -61,6 +76,7 @@ const userWorks = {
       name: 'Oficinas Corporativas',
       description: 'Oficinas corporativas en Buenos Aires',
       cityId: '1',
+      neighborhood: 'Puerto Madero',
       lng: -58.4, lat: -34.62,
       status: 'ACTIVE',
       propertyType: 'oficina',
@@ -70,6 +86,10 @@ const userWorks = {
       bathrooms: 2,
       hasPatio: false,
       hasGarage: true,
+      images: [
+        { id: 'img7', url: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=400', order: 0 },
+        { id: 'img8', url: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=400', order: 1 }
+      ]
     },
   ],
 }
@@ -99,6 +119,7 @@ export const worksService = {
       name: data.name,
       description: data.description,
       cityId: data.cityId,
+      neighborhood: data.neighborhood || '',
       lng: data.lng,
       lat: data.lat,
       status: data.status || 'ACTIVE',
@@ -109,6 +130,11 @@ export const worksService = {
       bathrooms: data.bathrooms,
       hasPatio: data.hasPatio || false,
       hasGarage: data.hasGarage || false,
+      images: data.images ? data.images.map((img, idx) => ({
+        id: img.id || `img_${Date.now()}_${idx}`,
+        url: img.preview || '',
+        order: idx
+      })) : [],
     }
 
     if (!userWorks[data.userId]) {

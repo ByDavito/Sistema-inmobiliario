@@ -3,6 +3,7 @@ import { worksService } from '../../services/worksService'
 import { Button } from '../../shared/components/Button'
 import { Input } from '../../shared/components/Input'
 import { Select } from '../../shared/components/Select'
+import { ImageUploader } from './ImageUploader'
 import './WorkForm.css'
 
 export function WorkForm({ isOpen, onClose, onSuccess, location, cityId, cities, userId }) {
@@ -10,7 +11,9 @@ export function WorkForm({ isOpen, onClose, onSuccess, location, cityId, cities,
     title: '',
     description: '',
     cityId: cityId || '',
+    neighborhood: '',
   })
+  const [images, setImages] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -36,9 +39,11 @@ export function WorkForm({ isOpen, onClose, onSuccess, location, cityId, cities,
 
       await worksService.create({
         userId,
-        title: formData.title,
+        name: formData.title,
         description: formData.description,
         cityId: formData.cityId,
+        neighborhood: formData.neighborhood,
+        images: images,
         lng: location.lng,
         lat: location.lat,
       })
@@ -80,6 +85,19 @@ export function WorkForm({ isOpen, onClose, onSuccess, location, cityId, cities,
             onChange={(e) => setFormData({ ...formData, cityId: e.target.value })}
             options={cities}
             required
+          />
+
+          <Input
+            label="Barrio"
+            value={formData.neighborhood}
+            onChange={(e) => setFormData({ ...formData, neighborhood: e.target.value })}
+            placeholder="Ej: Palermo, Belgrano, Núñez..."
+            required
+          />
+
+          <ImageUploader
+            images={images}
+            onImagesChange={setImages}
           />
 
           <div className="location-info">
