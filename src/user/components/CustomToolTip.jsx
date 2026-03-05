@@ -1,6 +1,11 @@
 import './CustomToolTip.css'
 
 export function CustomToolTip({point, onEdit}) {
+  // Obtener la imagen en posición 1 (índice 0)
+  const firstImage = point.images && point.images.length > 0 
+    ? point.images.find(img => img.order === 0) || point.images[0]
+    : null
+  
   const handleEdit = (e) => {
     e.preventDefault()
     e.stopPropagation()
@@ -11,11 +16,10 @@ export function CustomToolTip({point, onEdit}) {
   
   return (
     <div className="custom-tooltip" onClick={(e) => e.stopPropagation()}>
-      {point.image && <img src={point.image} alt={point.title} className="custom-tooltip-image" />}
+      {firstImage && <img src={firstImage.url} alt={point.title} className="custom-tooltip-image" />}
       <div className="custom-tooltip-content">
         {point.title && <h4 className="custom-tooltip-title">{point.title}</h4>}
         {point.description && <p className="custom-tooltip-description">{point.description}</p>}
-        <button className="custom-tooltip-button" onClick={handleEdit}>Editar</button>
       </div>
     </div>
   )

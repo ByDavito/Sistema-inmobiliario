@@ -45,6 +45,25 @@ export function WorksPanel() {
     loadCities()
   }, [user.id])
 
+  // Encontrar la ciudad con más obras del usuario
+  useEffect(() => {
+    if (works.length > 0 && cities.length > 0) {
+      // Contar obras por ciudad
+      const worksByCity = works.reduce((acc, work) => {
+        acc[work.cityId] = (acc[work.cityId] || 0) + 1
+        return acc
+      }, {})
+
+      // Encontrar la ciudad con más obras
+      const cityWithMostWorks = Object.entries(worksByCity)
+        .reduce((max, [cityId, count]) => count > max.count ? { cityId, count } : max, { cityId: null, count: 0 })
+
+      if (cityWithMostWorks.cityId) {
+        setSelectedCityId(cityWithMostWorks.cityId)
+      }
+    }
+  }, [works, cities])
+
   // Ciudades donde el usuario tiene obras
   const citiesWithWorks = [...new Set(works.map(w => w.cityId))]
   const cityOptions = cities
@@ -71,6 +90,7 @@ export function WorksPanel() {
     description: work.description,
     propertyType: work.propertyType,
     status: work.status,
+    images: work.images,
   }))
 
   const handleWorkSelect = (work) => {

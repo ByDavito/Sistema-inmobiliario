@@ -45,6 +45,27 @@ const userWorks = {
         { id: 'img4', url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400', order: 1 }
       ]
     },
+    {
+      id: '5',
+      userId: '2',
+      name: 'Departamento Moderno',
+      description: 'Departamento moderno en el centro de Córdoba con vista panorámica. Incluye amenities de lujo como piscina, gym y seguridad 24hs. El edificio cuenta con rooftop terrace y áreas comunes equipadas.',
+      cityId: '2',
+      neighborhood: 'Centro',
+      lng: -64.1815, lat: -31.4201,
+      status: 'ACTIVE',
+      propertyType: 'departamento',
+      coveredSurface: 80,
+      totalSurface: 95,
+      bedrooms: 2,
+      bathrooms: 1,
+      hasPatio: false,
+      hasGarage: true,
+      images: [
+        { id: 'img9', url: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400', order: 0 },
+        { id: 'img10', url: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400', order: 1 }
+      ]
+    },
   ],
   '4': [  // juan@test.com
     {
