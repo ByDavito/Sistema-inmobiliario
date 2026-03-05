@@ -1,6 +1,7 @@
 import { Component } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './auth/AuthContext'
+import { ThemeProvider } from './shared/components/ThemeContext'
 import { Login } from './pages/Login'
 import { Layout } from './shared/components/Layout'
 import { ProtectedRoute } from './shared/components/ProtectedRoute'
@@ -171,7 +172,9 @@ function AppRoutes() {
 function App() {
   return (
     <GlobalErrorBoundary>
-      <AppRoutes />
+      <ThemeProvider>
+        <AppRoutes />
+      </ThemeProvider>
     </GlobalErrorBoundary>
   )
 }

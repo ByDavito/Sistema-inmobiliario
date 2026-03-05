@@ -1,9 +1,12 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../auth/AuthContext'
+import { useTheme } from './ThemeContext'
+import { Sun, Moon } from 'lucide-react'
 import './Layout.css'
 
 export function Layout() {
   const { user, logout, isAdmin, isUser } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -35,6 +38,13 @@ export function Layout() {
             )}
           </nav>
           <div className="header-user">
+            <button 
+              className="theme-toggle" 
+              onClick={toggleTheme}
+              title={theme === 'light' ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro'}
+            >
+              {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+            </button>
             <span className="user-name">{user?.name}</span>
             <span className="user-role">({user?.role})</span>
             <button className="logout-btn" onClick={handleLogout}>

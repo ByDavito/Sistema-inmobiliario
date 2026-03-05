@@ -4,6 +4,7 @@ import { Button } from '../../shared/components/Button'
 import { Modal } from '../../shared/components/Modal'
 import { Input } from '../../shared/components/Input'
 import { MapWrapper } from '../../components/MapWrapper'
+import { Check } from 'lucide-react'
 import './AdminCities.css'
 
 export function AdminCities() {
@@ -220,14 +221,14 @@ const mapConfig = useMemo(() => {
                   onClick={() => setSelectionMode('center')}
                   disabled={!!selectionMode && selectionMode !== 'center'}
                 >
-                  {formData.center ? '✓ Centro seleccionado' : '1. Seleccionar centro'}
+                  {formData.center ? <><Check size={14} /> Centro seleccionado</> : '1. Seleccionar centro'}
                 </Button>
                 <Button
                   variant={selectionMode === 'bounds' ? 'primary' : 'outline'}
                   onClick={() => setSelectionMode('bounds')}
                   disabled={!!selectionMode && selectionMode !== 'bounds'}
                 >
-                  {formData.bounds ? '✓ Límites seleccionados' : '2. Seleccionar límites (2 clicks)'}
+                  {formData.bounds ? <><Check size={14} /> Límites seleccionados</> : '2. Seleccionar límites (2 clicks)'}
                 </Button>
               </div>
 

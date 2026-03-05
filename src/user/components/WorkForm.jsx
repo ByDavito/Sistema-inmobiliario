@@ -4,6 +4,7 @@ import { Button } from '../../shared/components/Button'
 import { Input } from '../../shared/components/Input'
 import { Select } from '../../shared/components/Select'
 import { ImageUploader } from './ImageUploader'
+import { X, Check } from 'lucide-react'
 import './WorkForm.css'
 
 export function WorkForm({ isOpen, onClose, onSuccess, location, cityId, cities, userId }) {
@@ -61,7 +62,9 @@ export function WorkForm({ isOpen, onClose, onSuccess, location, cityId, cities,
       <div className="work-form-modal" onClick={e => e.stopPropagation()}>
         <div className="work-form-header">
           <h2>Nueva Obra</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
+          <button className="close-btn" onClick={onClose}>
+            <X size={20} />
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="work-form-body">
@@ -104,7 +107,7 @@ export function WorkForm({ isOpen, onClose, onSuccess, location, cityId, cities,
             <label>Ubicación seleccionada</label>
             {location ? (
               <p className="location-ok">
-                ✓ {location.lat?.toFixed(6)}, {location.lng?.toFixed(6)}
+                <Check size={16} /> {location.lat?.toFixed(6)}, {location.lng?.toFixed(6)}
               </p>
             ) : (
               <p className="location-missing">

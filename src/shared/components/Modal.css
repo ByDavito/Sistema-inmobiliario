@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.9); /* Increased opacity for debugging */
+  background-color: var(--overlay-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -18,16 +18,15 @@
 }
 
 .modal-container {
-  background-color: white;
+  background-color: var(--bg-secondary);
   border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 20px var(--shadow-color);
   width: auto;
   height: auto;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   animation: slideIn 0.2s ease;
-  border: 2px solid red; /* Debug border */
 }
 
 @keyframes slideIn {
@@ -40,27 +39,27 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .modal-title {
   margin: 0;
   font-size: 1.25rem;
-  color: #212529;
+  color: var(--text-primary);
 }
 
 .modal-close {
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #6c757d;
+  color: var(--text-secondary);
   cursor: pointer;
   padding: 0;
   line-height: 1;
 }
 
 .modal-close:hover {
-  color: #212529;
+  color: var(--text-primary);
 }
 
 .modal-body {
@@ -83,6 +82,6 @@
   justify-content: flex-end;
   gap: 0.5rem;
   padding: 1rem 1.5rem;
-  border-top: 1px solid #dee2e6;
-  background-color: #f8f9fa;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-tertiary);
 }

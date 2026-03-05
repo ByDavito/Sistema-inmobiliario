@@ -7,7 +7,7 @@
 .error {
   text-align: center;
   padding: 2rem;
-  color: #6c757d;
+  color: var(--text-secondary);
 }
 
 .cities-grid {
@@ -17,23 +17,24 @@
 }
 
 .city-card {
-  background-color: white;
+  background-color: var(--bg-secondary);
   border-radius: 8px;
   padding: 1.25rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px var(--shadow-color);
+  transition: background-color 0.3s ease;
 }
 
 .city-name {
   margin: 0 0 1rem 0;
   font-size: 1.1rem;
-  color: #212529;
+  color: var(--text-primary);
 }
 .city-details{
   margin-top: 3rem;
 }
 .city-info {
   font-size: 0.85rem;
-  color: #495057;
+  color: var(--text-secondary);
 }
 .city-map {
   border-radius: 15px;
@@ -78,16 +79,16 @@
 }
 
 .map-selection {
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 1rem;
-  background-color: #f8f9fa;
+  background-color: var(--bg-tertiary);
 }
 
 .map-selection h4 {
   margin: 0 0 0.75rem 0;
   font-size: 0.95rem;
-  color: #495057;
+  color: var(--text-primary);
 }
 
 .selection-buttons {
@@ -98,21 +99,21 @@
 
 .selection-hint {
   font-size: 0.85rem;
-  color: #007bff;
+  color: var(--accent-color);
   margin: 0 0 0.5rem 0;
 }
 
 .selection-info {
   font-size: 0.8rem;
-  color: #28a745;
+  color: var(--success-text);
   margin: 0;
   padding: 0.5rem;
-  background-color: #d4edda;
+  background-color: var(--success-bg);
   border-radius: 4px;
 }
 
 .map-preview {
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   overflow: hidden;
 }

@@ -13,25 +13,26 @@
 .page-header h1 {
   margin: 0;
   font-size: 1.5rem;
-  color: #212529;
+  color: var(--text-primary);
 }
 
 .loading,
 .error {
   text-align: center;
   padding: 2rem;
-  color: #6c757d;
+  color: var(--text-secondary);
 }
 
 .error {
-  color: #dc3545;
+  color: var(--danger-color);
 }
 
 .users-table-container {
-  background-color: white;
+  background-color: var(--bg-secondary);
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px var(--shadow-color);
   overflow: hidden;
+  transition: background-color 0.3s ease;
 }
 
 .users-table {
@@ -43,13 +44,14 @@
 .users-table td {
   padding: 0.75rem 1rem;
   text-align: left;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
 }
 
 .users-table th {
-  background-color: #f8f9fa;
+  background-color: var(--bg-tertiary);
   font-weight: 600;
-  color: #495057;
+  color: var(--text-secondary);
   font-size: 0.85rem;
   text-transform: uppercase;
 }
@@ -59,7 +61,7 @@
 }
 
 .users-table tr:hover {
-  background-color: #f8f9fa;
+  background-color: var(--bg-tertiary);
 }
 
 .role-badge,
@@ -72,23 +74,23 @@
 }
 
 .role-admin {
-  background-color: #e7f5ff;
-  color: #1971c2;
+  background-color: var(--info-bg);
+  color: var(--info-text);
 }
 
 .role-user {
-  background-color: #f8f9fa;
-  color: #495057;
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
 }
 
 .status-active {
-  background-color: #d3f9d8;
-  color: #2b8a3e;
+  background-color: var(--success-bg);
+  color: var(--success-text);
 }
 
 .status-blocked {
-  background-color: #ffe3e3;
-  color: #c92a2a;
+  background-color: var(--danger-bg);
+  color: var(--danger-text);
 }
 
 .actions {

@@ -5,9 +5,10 @@
 }
 
 .layout-header {
-  background-color: #343a40;
-  color: white;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
   padding: 0;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .header-content {
@@ -31,7 +32,7 @@
 }
 
 .header-nav a {
-  color: #adb5bd;
+  color: var(--text-secondary);
   text-decoration: none;
   font-size: 0.9rem;
   padding: 0.25rem 0;
@@ -41,8 +42,8 @@
 
 .header-nav a:hover,
 .header-nav a.active {
-  color: white;
-  border-bottom-color: #007bff;
+  color: var(--accent-color);
+  border-bottom-color: var(--accent-color);
 }
 
 .header-user {
@@ -53,17 +54,36 @@
 }
 
 .user-name {
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .user-role {
-  color: #adb5bd;
+  color: var(--text-secondary);
+}
+
+.theme-toggle {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 0.4rem;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.theme-toggle:hover {
+  background: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
 }
 
 .logout-btn {
   background: none;
-  border: 1px solid #6c757d;
-  color: #adb5bd;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
   padding: 0.25rem 0.75rem;
   border-radius: 4px;
   font-size: 0.8rem;
@@ -72,13 +92,14 @@
 }
 
 .logout-btn:hover {
-  background-color: #6c757d;
+  background-color: var(--danger-color);
   color: white;
+  border-color: var(--danger-color);
 }
 
 .layout-main {
   flex: 1;
-  background-color: #f8f9fa;
+  background-color: var(--bg-primary);
   padding: 1.5rem;
 }
 

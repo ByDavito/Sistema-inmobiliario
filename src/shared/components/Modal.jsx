@@ -1,5 +1,6 @@
 import './Modal.css'
 import { Button } from './Button'
+import { X } from 'lucide-react'
 
 export function Modal({ isOpen, onClose, title, children, onSubmit, submitLabel, cancelLabel = 'Cancelar', showSubmit = true, mode }) {
   console.log('Modal rendered, isOpen:', isOpen);
@@ -43,7 +44,9 @@ export function Modal({ isOpen, onClose, title, children, onSubmit, submitLabel,
       >
         <div className="modal-header">
           <h2 className="modal-title">{title}</h2>
-          <button className="modal-close" onClick={onClose}>×</button>
+          <button className="modal-close" onClick={onClose}>
+            <X size={20} />
+          </button>
         </div>
         <div className="modal-body">
           {children}

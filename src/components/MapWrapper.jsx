@@ -125,8 +125,10 @@ export function MapWrapper({
   tooltipComponent,
   tooltipContent,
   tooltipStyles,
+  selectedPoint,
 }) {
   const [currentZoom, setCurrentZoom] = useState(city?.zoom || 10)
+  const [isMapReady, setIsMapReady] = useState(false)
   const mapRef = useRef(null)
   const isUnmounting = useRef(false)
 
@@ -136,6 +138,32 @@ export function MapWrapper({
       setCurrentZoom(city.zoom)
     }
   }, [city?.zoom])
+
+  // Callback para obtener la referencia del mapa
+  const handleMapReady = useCallback((mapInstance) => {
+    mapRef.current = mapInstance
+    setIsMapReady(true)
+  }, [])
+
+  // Efecto para centrar el mapa en el punto seleccionado
+  useEffect(() => {
+    if (!selectedPoint || !mapRef.current || !isMapReady) return
+    
+    // El mapa se pasa como prop al componente interno, necesitamos esperar a que esté listo
+    const mapInstance = mapRef.current
+    if (!mapInstance) return
+
+    const { lng, lat, zoom } = selectedPoint
+    const targetZoom = zoom || 15
+
+    // Usar flyTo para centrar y hacer zoom suavemente
+    mapInstance.flyTo({
+      center: [lng, lat],
+      zoom: targetZoom,
+      duration: 1000,
+      essential: true
+    })
+  }, [selectedPoint, isMapReady])
 
   const handleZoomChange = useCallback(({ zoom }) => {
     if (!isUnmounting.current) {
@@ -174,6 +202,7 @@ export function MapWrapper({
           onPointClick={onMarkerClick}
           onMapClick={onMapClick}
           onZoomChange={mode === 'edit' ? handleZoomChange : undefined}
+          onMapReady={handleMapReady}
           width={width}
           height={height}
           markerContent={markerContent}

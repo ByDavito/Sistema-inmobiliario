@@ -8,6 +8,7 @@ import { Select } from '../../shared/components/Select'
 import { MapWrapper } from '../../components/MapWrapper'
 import { CustomMarker } from '../components/CustomMarker'
 import { CustomToolTip } from '../components/CustomToolTip'
+import { Plus } from 'lucide-react'
 import './WorksPanel.css'
 
 export function WorksPanel() {
@@ -93,6 +94,21 @@ export function WorksPanel() {
     images: work.images,
   }))
 
+  // Punto seleccionado para centrar el mapa
+  const selectedPoint = selectedWorkId
+    ? (() => {
+        const work = works.find(w => w.id === selectedWorkId)
+        if (work) {
+          return {
+            lng: work.lng,
+            lat: work.lat,
+            zoom: 16
+          }
+        }
+        return null
+      })()
+    : null
+
   const handleWorkSelect = (work) => {
     setSelectedWorkId(work.id)
     setSelectedCityId(work.cityId)
@@ -125,7 +141,7 @@ export function WorksPanel() {
       <div className="works-header">
         <h1>Mis Inmuebles</h1>
         <Button onClick={handleCreateWork}>
-          + Nuevo Inmueble
+          <Plus size={18} /> Nuevo Inmueble
         </Button>
       </div>
 
@@ -192,6 +208,7 @@ export function WorksPanel() {
               markerComponent={CustomMarker}
               markerStyles={['./WorksPanel.css']}
               tooltipComponent={CustomToolTip}
+              selectedPoint={selectedPoint}
             />
           )}
         </main>

@@ -1,5 +1,32 @@
 import { useState, useRef } from 'react'
+import { GripVertical, Camera, Video, ChevronUp, ChevronDown, X, Plus } from 'lucide-react'
 import './ImageUploader.css'
+
+// Función para extraer el ID del video de YouTube desde la URL
+export function extractYouTubeId(url) {
+  if (!url) return null
+  
+  // Regex para diferentes formatos de URLs de YouTube
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+  ]
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern)
+    if (match && match[1]) {
+      return match[1]
+    }
+  }
+  
+  return null
+}
+
+// Función para generar la URL del thumbnail de YouTube
+export function getYouTubeThumbnail(videoId) {
+  if (!videoId) return null
+  return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
+}
 
 export function ImageUploader({ images, onImagesChange }) {
   const fileInputRef = useRef(null)
@@ -26,6 +53,32 @@ export function ImageUploader({ images, onImagesChange }) {
       .map((img, index) => ({ ...img, order: index }))
     
     onImagesChange(updatedImages)
+  }
+
+  // Función para agregar un video de YouTube
+  const [youtubeUrl, setYoutubeUrl] = useState('')
+
+  const handleAddYouTubeVideo = () => {
+    const videoId = extractYouTubeId(youtubeUrl)
+    
+    if (!videoId) {
+      alert('URL de YouTube inválida. Por favor ingresa una URL válida de YouTube.')
+      return
+    }
+    
+    const thumbnail = getYouTubeThumbnail(videoId)
+    
+    const newVideo = {
+      id: Date.now() + Math.random().toString(36).substring(2, 11),
+      type: 'video',
+      videoId: videoId,
+      youtubeUrl: youtubeUrl,
+      preview: thumbnail,
+      order: images.length
+    }
+    
+    onImagesChange([...images, newVideo])
+    setYoutubeUrl('')
   }
 
   const moveImage = (index, direction) => {
@@ -121,7 +174,10 @@ export function ImageUploader({ images, onImagesChange }) {
                 onDrop={handleDrop}
               >
                 <div className="drag-handle" title="Arrastrar para reordenar">
-                  ⋮⋮
+                  <GripVertical size={16} />
+                </div>
+                <div className="image-type-icon" title={image.type === 'video' ? 'Video de YouTube' : 'Imagen'}>
+                  {image.type === 'video' ? <Video size={18} /> : <Camera size={18} />}
                 </div>
                 <div className="image-number">{index + 1}</div>
                 <img 
@@ -137,7 +193,7 @@ export function ImageUploader({ images, onImagesChange }) {
                     disabled={index === 0}
                     title="Mover arriba"
                   >
-                    ↑
+                    <ChevronUp size={16} />
                   </button>
                   <button
                     type="button"
@@ -146,7 +202,7 @@ export function ImageUploader({ images, onImagesChange }) {
                     disabled={index === images.length - 1}
                     title="Mover abajo"
                   >
-                    ↓
+                    <ChevronDown size={16} />
                   </button>
                   <button
                     type="button"
@@ -154,7 +210,7 @@ export function ImageUploader({ images, onImagesChange }) {
                     onClick={() => handleRemove(image.id)}
                     title="Eliminar"
                   >
-                    ×
+                    <X size={16} />
                   </button>
                 </div>
               </div>
@@ -168,8 +224,27 @@ export function ImageUploader({ images, onImagesChange }) {
           className="add-image-btn"
           onClick={openFilePicker}
         >
-          + Agregar fotos
+          <Plus size={18} /> Agregar fotos
         </button>
+        
+        {/* Input para agregar video de YouTube */}
+        <div className="youtube-input-container">
+          <input
+            type="text"
+            className="youtube-url-input"
+            placeholder="URL de video de YouTube"
+            value={youtubeUrl}
+            onChange={(e) => setYoutubeUrl(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleAddYouTubeVideo()}
+          />
+          <button
+            type="button"
+            className="add-youtube-btn"
+            onClick={handleAddYouTubeVideo}
+          >
+            <Plus size={18} /> Agregar video
+          </button>
+        </div>
         
         <input
           ref={fileInputRef}
@@ -183,7 +258,7 @@ export function ImageUploader({ images, onImagesChange }) {
         <p className="image-hint">
           {images.length === 0 
             ? 'Agrega fotos del inmueble' 
-            : `${images.length} foto(s) cargada(s). Arrastra las imágenes para reordenar.`}
+            : `${images.length} elemento(s) cargado(s). Arrastra para reordenar.`}
         </p>
       </div>
     </div>

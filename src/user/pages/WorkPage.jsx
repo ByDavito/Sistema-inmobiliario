@@ -8,6 +8,7 @@ import { Input } from "../../shared/components/Input";
 import { Select } from "../../shared/components/Select";
 import { MapWrapper } from "../../components/MapWrapper";
 import { ImageUploader } from "../components/ImageUploader";
+import { Check, MapPin } from "lucide-react";
 import "./WorkPage.css";
 
 const STATUS_OPTIONS = [
@@ -252,19 +253,19 @@ export function WorkPage({ mode = "create" }) {
                     mode="edit"
                     onMapClick={handleMapClick}
                     height="400px"
-                    markerContent={location ? "📍" : undefined}
+                    markerContent={<MapPin size={24} />}
                   />
                   <div
                     className={`location-info ${location ? "location-ok" : "location-pending"}`}
                   >
                     {location ? (
                       <span>
-                        ✓ Ubicación seleccionada: {location.lat.toFixed(6)},{" "}
+                        <Check size={16} /> Ubicación seleccionada: {location.lat.toFixed(6)},{" "}
                         {location.lng.toFixed(6)}
                       </span>
                     ) : (
                       <span>
-                        📍 Haz click en el mapa para seleccionar la ubicación
+                        <MapPin size={16} /> Haz click en el mapa para seleccionar la ubicación
                       </span>
                     )}
                   </div>
@@ -448,7 +449,7 @@ export function WorkPage({ mode = "create" }) {
             <div className="location-summary">
               <h3>Ubicación confirmada</h3>
               <p>
-                📍 {location?.lat?.toFixed(6)}, {location?.lng?.toFixed(6)}
+                <MapPin size={16} /> {location?.lat?.toFixed(6)}, {location?.lng?.toFixed(6)}
               </p>
               <Button
                 type="button"

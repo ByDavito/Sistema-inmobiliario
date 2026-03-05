@@ -1,5 +1,5 @@
 .work-form-modal {
-  background-color: white;
+  background-color: var(--bg-secondary);
   border-radius: 8px;
   width: 90%;
   max-width: 500px;
@@ -7,6 +7,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  transition: background-color 0.3s ease;
 }
 
 .work-form-header {
@@ -14,19 +15,20 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .work-form-header h2 {
   margin: 0;
   font-size: 1.25rem;
+  color: var(--text-primary);
 }
 
 .close-btn {
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #6c757d;
+  color: var(--text-secondary);
   cursor: pointer;
   padding: 0;
 }
@@ -44,22 +46,25 @@
   display: block;
   margin-bottom: 0.3rem;
   font-weight: 500;
-  color: #495057;
+  color: var(--text-primary);
   font-size: 0.9rem;
 }
 
 .location-ok {
-  color: #28a745;
-  background-color: #d4edda;
+  color: var(--success-text);
+  background-color: var(--success-bg);
   padding: 0.5rem;
   border-radius: 4px;
   margin: 0;
   font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .location-missing {
-  color: #dc3545;
-  background-color: #f8d7da;
+  color: var(--danger-text);
+  background-color: var(--danger-bg);
   padding: 0.5rem;
   border-radius: 4px;
   margin: 0;
@@ -67,8 +72,8 @@
 }
 
 .form-error {
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: var(--danger-bg);
+  color: var(--danger-text);
   padding: 0.75rem;
   border-radius: 4px;
   font-size: 0.9rem;
@@ -80,6 +85,6 @@
   justify-content: flex-end;
   gap: 0.5rem;
   padding: 1rem 1.5rem;
-  border-top: 1px solid #dee2e6;
-  background-color: #f8f9fa;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-tertiary);
 }
