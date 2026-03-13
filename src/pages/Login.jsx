@@ -68,15 +68,11 @@ export function Login() {
         </form>
 
         <div className="login-demo">
-          <p className="demo-title">Credenciales del admin:</p>
+          
           <div className="demo-accounts">
-            <div className="demo-account">
-              <strong>Admin:</strong> davidracca02@gmail.com / davito123
-            </div>
+            
           </div>
-          <p className="demo-note">
-            (Estas credenciales se crean automáticamente al iniciar la API si no existe ningún usuario)
-          </p>
+          
         </div>
       </div>
     </div>
