@@ -40,6 +40,23 @@
   border-bottom: 1px solid var(--border-color);
 }
 
+.loading-cities,
+.no-cities {
+  text-align: center;
+  padding: 1rem;
+  color: var(--text-secondary);
+}
+
+.no-cities p {
+  margin: 0;
+}
+
+.no-cities-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem !important;
+}
+
 .works-list {
   flex: 1;
   overflow-y: auto;
@@ -83,6 +100,12 @@
   align-items: flex-start;
   gap: 8px;
   margin-bottom: 4px;
+}
+
+.work-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
 }
 
 .work-title {
@@ -136,6 +159,60 @@
 .status-badge.status-completed {
   background-color: var(--info-bg);
   color: var(--info-text);
+}
+
+/* Nuevos estados de inmueble */
+.status-badge.status-en-construcción,
+.status-badge.status-en-construccion {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.status-alquilado {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-badge.status-se-alquila {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge.status-se-vende {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.status-badge.status-vendido {
+  background-color: #f3e8ff;
+  color: #6b21a8;
+}
+
+.status-badge.status-terminado {
+  background-color: var(--success-bg);
+  color: var(--success-text);
+}
+
+.status-badge.status-en-pausa {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+.activo-badge {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 15px;
+  font-weight: 500;
+}
+
+.activo-badge.activo {
+  background-color: var(--success-bg);
+  color: var(--success-text);
+}
+
+.activo-badge.inactivo {
+  background-color: var(--danger-bg);
+  color: var(--danger-text);
 }
 
 .property-type {

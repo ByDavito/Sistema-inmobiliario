@@ -13,7 +13,6 @@ export function AdminUsers() {
   const [showModal, setShowModal] = useState(false)
   const [editingUser, setEditingUser] = useState(null)
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
     password: '',
     role: 'USER',
@@ -38,7 +37,6 @@ export function AdminUsers() {
     if (user) {
       setEditingUser(user)
       setFormData({
-        name: user.name,
         email: user.email,
         password: '',
         role: user.role,
@@ -46,7 +44,6 @@ export function AdminUsers() {
     } else {
       setEditingUser(null)
       setFormData({
-        name: '',
         email: '',
         password: '',
         role: 'USER',
@@ -58,14 +55,13 @@ export function AdminUsers() {
   const handleCloseModal = () => {
     setShowModal(false)
     setEditingUser(null)
-    setFormData({ name: '', email: '', password: '', role: 'USER' })
+    setFormData({ email: '', password: '', role: 'USER' })
   }
 
   const handleSubmit = async () => {
     try {
       if (editingUser) {
         await usersService.update(editingUser.id, {
-          name: formData.name,
           email: formData.email,
           role: formData.role,
         })
@@ -105,48 +101,53 @@ export function AdminUsers() {
       </div>
 
       <div className="users-table-container">
-        <table className="users-table">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Email</th>
-              <th>Rol</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map(user => (
-              <tr key={user.id}>
-                <td>{user.name}</td>
-                <td>{user.email}</td>
-                <td>
-                  <span className={`role-badge role-${user.role.toLowerCase()}`}>
-                    {user.role}
-                  </span>
-                </td>
-                <td>
-                  <span className={`status-badge status-${user.status.toLowerCase()}`}>
-                    {user.status === 'ACTIVE' ? 'Activo' : 'Bloqueado'}
-                  </span>
-                </td>
-                <td>
-                  <div className="actions">
-                    <Button variant="outline" onClick={() => handleOpenModal(user)}>
-                      Editar
-                    </Button>
-                    <Button
-                      variant={user.status === 'ACTIVE' ? 'danger' : 'success'}
-                      onClick={() => handleToggleStatus(user)}
-                    >
-                      {user.status === 'ACTIVE' ? 'Bloquear' : 'Desbloquear'}
-                    </Button>
-                  </div>
-                </td>
+        {users.length === 0 ? (
+          <div className="empty-state">
+            <p>No hay usuarios registrados</p>
+            <p className="empty-hint">Crea el primer usuario para comenzar</p>
+          </div>
+        ) : (
+          <table className="users-table">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {users.map(user => (
+                <tr key={user.id}>
+                  <td>{user.email}</td>
+                  <td>
+                    <span className={`role-badge role-${user.role?.toLowerCase()}`}>
+                      {user.role}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={`status-badge status-${user.status?.toLowerCase()}`}>
+                      {user.status === 'ACTIVE' ? 'Activo' : 'Bloqueado'}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="actions">
+                      <Button variant="outline" onClick={() => handleOpenModal(user)}>
+                        Editar
+                      </Button>
+                      <Button
+                        variant={user.status === 'ACTIVE' ? 'danger' : 'success'}
+                        onClick={() => handleToggleStatus(user)}
+                      >
+                        {user.status === 'ACTIVE' ? 'Bloquear' : 'Desbloquear'}
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       <Modal
@@ -156,12 +157,6 @@ export function AdminUsers() {
         onSubmit={handleSubmit}
         submitLabel={editingUser ? 'Guardar' : 'Crear'}
       >
-        <Input
-          label="Nombre"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          required
-        />
         <Input
           label="Email"
           type="email"

@@ -1,203 +1,458 @@
-// Simulación de API de obras
+// Servicio de obras - Comunicación con la API real
+import { get, post, put, del, patch } from './apiClient';
 
-// Obras asociadas a usuarios (mock básico)
-const userWorks = {
-  '2': [  // user@test.com
-    {
-      id: '1',
-      userId: '2',
-      name: 'Edificio Residencial',
-      description: 'Proyecto de edificio residencial en Buenos Aires',
-      cityId: '1',
-      neighborhood: 'Palermo',
-      lng: -58.381636, lat: -34.603707,
-      status: 'ACTIVE',
-      propertyType: 'edificio',
-      coveredSurface: 500,
-      totalSurface: 800,
-      bedrooms: 8,
-      bathrooms: 4,
-      hasPatio: false,
-      hasGarage: true,
-      images: [
-        { id: 'img1', url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400', order: 0 },
-        { id: 'img2', url: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400', order: 1 }
-      ]
-    },
-    {
-      id: '2',
-      userId: '2',
-      name: 'Casa Familiar',
-      description: 'Casa familiar en Córdoba',
-      cityId: '2',
-      neighborhood: 'Cerro de las Rosas',
-      lng: -64.1888, lat: -31.4201,
-      status: 'ACTIVE',
-      propertyType: 'casa',
-      coveredSurface: 150,
-      totalSurface: 300,
-      bedrooms: 3,
-      bathrooms: 2,
-      hasPatio: true,
-      hasGarage: true,
-      images: [
-        { id: 'img3', url: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400', order: 0 },
-        { id: 'img4', url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400', order: 1 }
-      ]
-    },
-    {
-      id: '5',
-      userId: '2',
-      name: 'Departamento Moderno',
-      description: 'Departamento moderno en el centro de Córdoba con vista panorámica. Incluye amenities de lujo como piscina, gym y seguridad 24hs. El edificio cuenta con rooftop terrace y áreas comunes equipadas.',
-      cityId: '2',
-      neighborhood: 'Centro',
-      lng: -64.1815, lat: -31.4201,
-      status: 'ACTIVE',
-      propertyType: 'departamento',
-      coveredSurface: 80,
-      totalSurface: 95,
-      bedrooms: 2,
-      bathrooms: 1,
-      hasPatio: false,
-      hasGarage: true,
-      images: [
-        { id: 'img9', url: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400', order: 0 },
-        { id: 'img10', url: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400', order: 1 }
-      ]
-    },
-  ],
-  '4': [  // juan@test.com
-    {
-      id: '3',
-      userId: '4',
-      name: 'Local Comercial',
-      description: 'Local comercial en Rosario',
-      cityId: '3',
-      neighborhood: 'Centro',
-      lng: -60.6393, lat: -32.9468,
-      status: 'ACTIVE',
-      propertyType: 'local',
-      coveredSurface: 80,
-      totalSurface: 80,
-      bedrooms: 0,
-      bathrooms: 1,
-      hasPatio: false,
-      hasGarage: false,
-      images: [
-        { id: 'img5', url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400', order: 0 },
-        { id: 'img6', url: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=400', order: 1 }
-      ]
-    },
-  ],
-  '5': [  // maria@test.com
-    {
-      id: '4',
-      userId: '5',
-      name: 'Oficinas Corporativas',
-      description: 'Oficinas corporativas en Buenos Aires',
-      cityId: '1',
-      neighborhood: 'Puerto Madero',
-      lng: -58.4, lat: -34.62,
-      status: 'ACTIVE',
-      propertyType: 'oficina',
-      coveredSurface: 200,
-      totalSurface: 200,
-      bedrooms: 0,
-      bathrooms: 2,
-      hasPatio: false,
-      hasGarage: true,
-      images: [
-        { id: 'img7', url: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=400', order: 0 },
-        { id: 'img8', url: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=400', order: 1 }
-      ]
-    },
-  ],
+// Función para extraer el ID del video de YouTube desde la URL
+function extractYouTubeId(url) {
+  if (!url) return null;
+  
+  // Regex para diferentes formatos de URLs de YouTube
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) {
+      return match[1];
+    }
+  }
+  
+  return null;
 }
-
-let nextId = 5
 
 export const worksService = {
-  async getByUserId(userId) {
-    await new Promise(resolve => setTimeout(resolve, 300))
-    return userWorks[userId] ? [...userWorks[userId]] : []
+  /**
+   * Obtiene todas las obras del usuario actual
+   * @returns {Promise<Array>} Lista de obras
+   */
+  async getByUserId() {
+    try {
+      const works = await get('/works');
+      // Transformar datos del backend al formato del frontend
+      if (works && Array.isArray(works)) {
+        return works.map(work => ({
+          id: work.id,
+          userId: work.FK_ID_Usuario,
+          name: work.Nombre,
+          description: work.Descripcion,
+          cityId: work.FK_ID_Ciudad,
+          neighborhood: work.Barrio || '',
+          lng: work.Longitud,
+          lat: work.Latitud,
+          status: work.Estado, // Estado del inmueble (en construcción, alquilado, etc.)
+          activo: work.Activo, // Boolean para mostrar/ocultar en web
+          propertyType: work.tipoNombre || '',
+          coveredSurface: work.SuperficieCubierta,
+          totalSurface: work.SuperficieTotal,
+          bedrooms: work.Habitaciones,
+          bathrooms: work.Baños,
+          hasPatio: work.Patio,
+          hasGarage: work.Cochera,
+          cityName: work.ciudadNombre,
+          images: this.transformMedia(work.medios || []), // Transformar medios al formato del frontend
+        }));
+      }
+      return [];
+    } catch (error) {
+      console.error('Error al obtener obras:', error);
+      return [];
+    }
   },
 
+  /**
+   * Obtiene una obra por su ID
+   * @param {string} id - ID de la obra
+   * @returns {Promise<object>} Datos de la obra
+   */
   async getById(id) {
-    await new Promise(resolve => setTimeout(resolve, 200))
-    for (const userId in userWorks) {
-      const work = userWorks[userId].find(w => w.id === id)
-      if (work) return { ...work }
+    try {
+      const work = await get(`/works/${id}`);
+      // Transformar datos del backend al formato del frontend
+      if (work) {
+        return {
+          id: work.id,
+          userId: work.FK_ID_Usuario,
+          name: work.Nombre,
+          description: work.Descripcion,
+          cityId: work.FK_ID_Ciudad,
+          neighborhood: work.Barrio || '',
+          lng: work.Longitud,
+          lat: work.Latitud,
+          status: work.Estado,
+          activo: work.Activo,
+          propertyType: work.tipoNombre || '',
+          coveredSurface: work.SuperficieCubierta,
+          totalSurface: work.SuperficieTotal,
+          bedrooms: work.Habitaciones,
+          bathrooms: work.Baños,
+          hasPatio: work.Patio,
+          hasGarage: work.Cochera,
+          cityName: work.ciudadNombre,
+          images: this.transformMedia(work.medios || []), // Transformar medios al formato del frontend
+        };
+      }
+      return work;
+    } catch (error) {
+      console.error(`Error al obtener obra ${id}:`, error);
+      throw new Error('Obra no encontrada');
     }
-    throw new Error('Obra no encontrada')
   },
 
+  /**
+   * Crea una nueva obra
+   * @param {object} data - Datos de la obra (formato frontend)
+   * @returns {Promise<object>} Obra creada
+   */
   async create(data) {
-    await new Promise(resolve => setTimeout(resolve, 400))
-    const newWork = {
-      id: String(nextId++),
-      userId: data.userId,
-      name: data.name,
-      description: data.description,
-      cityId: data.cityId,
-      neighborhood: data.neighborhood || '',
-      lng: data.lng,
-      lat: data.lat,
-      status: data.status || 'ACTIVE',
-      propertyType: data.propertyType,
-      coveredSurface: data.coveredSurface,
-      totalSurface: data.totalSurface,
-      bedrooms: data.bedrooms,
-      bathrooms: data.bathrooms,
-      hasPatio: data.hasPatio || false,
-      hasGarage: data.hasGarage || false,
-      images: data.images ? data.images.map((img, idx) => ({
-        id: img.id || `img_${Date.now()}_${idx}`,
-        url: img.preview || '',
-        order: idx
-      })) : [],
+    try {
+      // Transformar datos al formato que espera el backend
+      const workData = {
+        fkIdUsuario: data.userId,
+        fkIdCiudad: data.cityId,
+        estado: data.status || 'En construcción',
+        activo: true, // Por defecto activo = true
+        nombre: data.name,
+        descripcion: data.description,
+        superficieCubierta: data.coveredSurface,
+        superficieTotal: data.totalSurface,
+        latitud: data.lat,
+        longitud: data.lng,
+        habitaciones: data.bedrooms,
+        baños: data.bathrooms,
+        fkIdTipo: data.propertyType,
+        patio: data.hasPatio || false,
+        cochera: data.hasGarage || false,
+        barrio: data.neighborhood,
+      };
+      
+      const work = await post('/works', workData);
+      
+      // Si hay imágenes/videos, guardarlos
+      if (data.images && data.images.length > 0) {
+        await this.saveMedia(work.id, data.images);
+      }
+      
+      return work;
+    } catch (error) {
+      console.error('Error al crear obra:', error);
+      throw error;
     }
-
-    if (!userWorks[data.userId]) {
-      userWorks[data.userId] = []
-    }
-    userWorks[data.userId].push(newWork)
-
-    return { ...newWork }
   },
 
+  /**
+   * Actualiza una obra existente
+   * @param {string} id - ID de la obra
+   * @param {object} data - Datos a actualizar (formato frontend)
+   * @returns {Promise<object>} Obra actualizada
+   */
   async update(id, data) {
-    await new Promise(resolve => setTimeout(resolve, 300))
-    for (const userId in userWorks) {
-      const index = userWorks[userId].findIndex(w => w.id === id)
-      if (index !== -1) {
-        userWorks[userId][index] = { 
-          ...userWorks[userId][index], 
-          ...data,
-          id, // Mantener el ID original
-          userId: userWorks[userId][index].userId // Mantener el userId original
+    try {
+      // Transformar datos al formato que espera el backend
+      const workData = {
+        fkIdCiudad: data.cityId,
+        estado: data.status,
+        activo: data.activo,
+        nombre: data.name,
+        descripcion: data.description,
+        superficieCubierta: data.coveredSurface,
+        superficieTotal: data.totalSurface,
+        latitud: data.lat,
+        longitud: data.lng,
+        habitaciones: data.bedrooms,
+        baños: data.bathrooms,
+        fkIdTipo: data.propertyType,
+        patio: data.hasPatio || false,
+        cochera: data.hasGarage || false,
+        barrio: data.neighborhood,
+      };
+      
+      const work = await put(`/works/${id}`, workData);
+      
+      // Eliminar imágenes marcadas para eliminación
+      if (data.deletedImageIds && data.deletedImageIds.length > 0) {
+        for (const mediaId of data.deletedImageIds) {
+          try {
+            await this.deleteMedia(mediaId);
+          } catch (e) {
+            console.error('Error deleting media:', e);
+          }
         }
-        return { ...userWorks[userId][index] }
       }
+      
+      // Procesar medios: eliminar, actualizar orden y guardar nuevos
+      if (data.images && data.images.length > 0) {
+        // Obtener medios existentes para comparar
+        const existingMedia = await this.getMedia(id);
+        
+        // Actualizar orden de medios existentes
+        for (const img of data.images) {
+          // Si tiene ID y existe en la DB, verificar si cambió el orden
+          if (img.id && !img.file) {
+            const existing = existingMedia.find(m => String(m.id) === String(img.id));
+            console.log('Verificando orden para imagen:', img.id, 'existing:', existing?.Orden, 'new:', img.order);
+            if (existing && Number(existing.Orden) !== Number(img.order)) {
+              // El orden cambió, actualizar
+              console.log('Actualizando orden de imagen:', img.id, 'a:', Number(img.order));
+              try {
+                await this.updateMediaOrder(img.id, Number(img.order));
+              } catch (e) {
+                console.error('Error updating media order:', e);
+              }
+            }
+          }
+        }
+        
+        // Guardar solo los medios nuevos (los que tienen la propiedad 'file' o son videos de YouTube sin ID de DB)
+        // Los videos tienen ID local generado, los IDs de DB son números
+        const newMedia = data.images.filter(img => {
+          // Si es archivo, es nuevo
+          if (img.file) return true;
+          // Si es video y el ID no es un número (es un ID local), es nuevo
+          if (img.type === 'video' && img.id && typeof img.id !== 'number') return true;
+          return false;
+        });
+        console.log('Nuevos medios a guardar:', newMedia);
+        if (newMedia.length > 0) {
+          await this.saveMedia(id, newMedia);
+        }
+      }
+      
+      return work;
+    } catch (error) {
+      console.error(`Error al actualizar obra ${id}:`, error);
+      throw error;
     }
-    throw new Error('Obra no encontrada')
   },
 
+  /**
+   * Alterna el estado activo de una obra
+   * @param {string} id - ID de la obra
+   * @returns {Promise<{success: boolean, activo: boolean}>}
+   */
+  async toggleActivo(id) {
+    try {
+      const result = await patch(`/works/${id}/toggle-activo`, {});
+      return result;
+    } catch (error) {
+      console.error(`Error al togglear activo de obra ${id}:`, error);
+      throw error;
+    }
+  },
+
+  /**
+   * Elimina una obra
+   * @param {string} id - ID de la obra
+   * @returns {Promise<{success: boolean}>}
+   */
   async delete(id) {
-    await new Promise(resolve => setTimeout(resolve, 300))
-    for (const userId in userWorks) {
-      const index = userWorks[userId].findIndex(w => w.id === id)
-      if (index !== -1) {
-        userWorks[userId].splice(index, 1)
-        return { success: true }
-      }
+    try {
+      await del(`/works/${id}`);
+      return { success: true };
+    } catch (error) {
+      console.error(`Error al eliminar obra ${id}:`, error);
+      throw error;
     }
-    throw new Error('Obra no encontrada')
   },
 
-  async getWorksByCity(userId, cityId) {
-    await new Promise(resolve => setTimeout(resolve, 300))
-    const works = userWorks[userId] || []
-    return works.filter(w => w.cityId === cityId)
+  /**
+   * Obtiene las obras de una ciudad específica
+   * @param {string} cityId - ID de la ciudad
+   * @returns {Promise<Array>} Lista de obras en la ciudad
+   */
+  async getWorksByCity(cityId) {
+    try {
+      const works = await get('/works');
+      if (!works || !Array.isArray(works)) return [];
+      return works.filter(w => w.FK_ID_Ciudad === cityId);
+    } catch (error) {
+      console.error('Error al obtener obras por ciudad:', error);
+      return [];
+    }
   },
-}
+
+  /**
+   * Guarda los medios (imágenes y videos) de una obra
+   * @param {string} workId - ID de la obra
+   * @param {Array} media - Array de medios (imágenes o videos de YouTube)
+   */
+  async saveMedia(workId, media) {
+    try {
+      // Procesar cada medio uno por uno para evitar errores de tamaño
+      for (let i = 0; i < media.length; i++) {
+        const item = media[i];
+        // Determinar el tipo de medio
+        const isVideo = item.type === 'video' || item.youtubeUrl;
+        
+        if (isVideo) {
+          // Es un video de YouTube - guardar solo la URL y videoId
+          const mediaData = {
+            fkIdObra: workId,
+            tipo: 'video',
+            url: item.youtubeUrl || item.url,
+            videoId: item.videoId || extractYouTubeId(item.youtubeUrl || item.url),
+            orden: item.order ?? i,
+          };
+          await post(`/works/${workId}/images`, mediaData);
+        } else if (item.file) {
+          // Es una imagen (archivo) - comprimir y convertir a base64
+          try {
+            const base64Data = await this.compressImage(item.file);
+            const mediaData = {
+              fkIdObra: workId,
+              tipo: 'imagen',
+              url: base64Data,
+              orden: item.order ?? i,
+            };
+            await post(`/works/${workId}/images`, mediaData);
+          } catch (err) {
+            console.error('Error compressando imagen:', err);
+          }
+        } else if (item.url) {
+          // Es una URL de imagen existente (ya была guardada antes)
+          const mediaData = {
+            fkIdObra: workId,
+            tipo: 'imagen',
+            url: item.url,
+            orden: item.order ?? i,
+          };
+          await post(`/works/${workId}/images`, mediaData);
+        }
+      }
+    } catch (error) {
+      console.error('Error al guardar medios:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Transforma los medios del formato del backend al formato del ImageUploader
+   * @param {Array} media - Array de medios del backend
+   * @returns {Array} Array de medios en formato para ImageUploader
+   */
+  transformMedia(media) {
+    if (!media || !Array.isArray(media)) return [];
+    
+    return media.map((m, index) => {
+      const isVideo = m.Tipo?.toUpperCase() === 'VIDEO';
+      
+      if (isVideo) {
+        // Es un video de YouTube
+        return {
+          id: m.id,
+          type: 'video',
+          videoId: m.VideoId,
+          youtubeUrl: m.URL,
+          preview: m.VideoId ? `https://img.youtube.com/vi/${m.VideoId}/maxresdefault.jpg` : null,
+          url: m.URL,
+          order: m.Orden ?? index,
+        };
+      } else {
+        // Es una imagen (puede estar en imageData o URL)
+        const imageUrl = m.imageData || m.URL;
+        return {
+          id: m.id,
+          type: 'imagen',
+          url: imageUrl,
+          preview: imageUrl,
+          order: m.Orden ?? index,
+        };
+      }
+    });
+  },
+
+  /**
+   * Comprime una imagen y la convierte a base64
+   * @param {number} maxWidth - Ancho máximo
+   * @param {number} quality - Calidad de compresión (0-1)
+   * @returns {Promise<string>} Imagen en base64
+   */
+  compressImage(file, maxWidth = 600, quality = 0.5) {
+    return new Promise((resolve, reject) => {
+      // Verificar tamaño del archivo (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        reject(new Error('La imagen es muy grande (máximo 5MB)'));
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // Calcular nuevas dimensiones manteniendo la proporción
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          // Usar平滑 para mejor calidad
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'medium';
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convertir a base64 con compresión
+          const base64 = canvas.toDataURL('image/jpeg', quality);
+          resolve(base64);
+        };
+        img.onerror = reject;
+        img.src = event.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  },
+
+  /**
+   * Obtiene los medios de una obra
+   * @param {string} workId - ID de la obra
+   * @returns {Promise<Array>} Lista de medios
+   */
+  async getMedia(workId) {
+    try {
+      const media = await get(`/works/${workId}/images`);
+      return media || [];
+    } catch (error) {
+      console.error('Error al obtener medios:', error);
+      return [];
+    }
+  },
+
+  /**
+   * Elimina un medio
+   * @param {string} mediaId - ID del medio
+   */
+  async deleteMedia(mediaId) {
+    try {
+      await del(`/media/${mediaId}`);
+      return { success: true };
+    } catch (error) {
+      console.error('Error al eliminar medio:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Actualiza el orden de un medio
+   * @param {string} mediaId - ID del medio
+   * @param {number} orden - Nuevo orden
+   */
+  async updateMediaOrder(mediaId, orden) {
+    try {
+      await patch(`/media/${mediaId}/order`, { orden });
+      return { success: true };
+    } catch (error) {
+      console.error('Error al actualizar orden del medio:', error);
+      throw error;
+    }
+  },
+};
+
+export default worksService;

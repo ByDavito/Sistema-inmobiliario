@@ -28,10 +28,11 @@ export function getYouTubeThumbnail(videoId) {
   return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
 }
 
-export function ImageUploader({ images, onImagesChange }) {
+export function ImageUploader({ images, onImagesChange, onDeletedChange }) {
   const fileInputRef = useRef(null)
   const dragItemRef = useRef(null)
   const dragOverItemRef = useRef(null)
+  const [deletedIds, setDeletedIds] = useState([])
 
   const handleFileSelect = (e) => {
     const files = Array.from(e.target.files)
@@ -48,6 +49,19 @@ export function ImageUploader({ images, onImagesChange }) {
   }
 
   const handleRemove = (id) => {
+    // Buscar la imagen para ver si tiene ID (viene de la DB)
+    const imageToRemove = images.find(img => img.id === id)
+    
+    // Si tiene ID, es una imagen de la DB, marcarla para eliminación
+    if (imageToRemove && imageToRemove.id && !imageToRemove.file) {
+      const newDeletedIds = [...deletedIds, imageToRemove.id]
+      setDeletedIds(newDeletedIds)
+      // Notificar al padre sobre los IDs eliminados
+      if (onDeletedChange) {
+        onDeletedChange(newDeletedIds)
+      }
+    }
+    
     const updatedImages = images
       .filter(img => img.id !== id)
       .map((img, index) => ({ ...img, order: index }))

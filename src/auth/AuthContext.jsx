@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
+import { authService } from '../services/authService'
+import { setAuthToken } from '../services/apiClient'
 
 const AuthContext = createContext(null)
 
@@ -15,15 +17,28 @@ export function AuthProvider({ children }) {
     if (savedToken && savedUser) {
       setToken(savedToken)
       setUser(JSON.parse(savedUser))
+      // Establecer el token en el cliente HTTP
+      setAuthToken(savedToken)
     }
     setLoading(false)
   }, [])
 
-  const login = (newToken, newUser) => {
-    localStorage.setItem('token', newToken)
-    localStorage.setItem('user', JSON.stringify(newUser))
-    setToken(newToken)
-    setUser(newUser)
+  const login = async (email, password) => {
+    try {
+      const result = await authService.login(email, password)
+      
+      localStorage.setItem('token', result.token)
+      localStorage.setItem('user', JSON.stringify(result.user))
+      
+      setToken(result.token)
+      setUser(result.user)
+      setAuthToken(result.token)
+      
+      return result
+    } catch (error) {
+      console.error('Error en login:', error)
+      throw error
+    }
   }
 
   const logout = () => {
@@ -31,6 +46,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('user')
     setToken(null)
     setUser(null)
+    setAuthToken(null)
   }
 
   const isAuthenticated = !!token

@@ -43,9 +43,10 @@ export function AdminCities() {
     setModalMode(mode)
     
     setFormData({
+      id: city ? city.id : null,
       name: city ? city.name : '',
       center: city ? city.center : null,
-      bounds: city ? city.bounds : null,
+      bounds: null, // Al editar, iniciar sin bounds para movimiento libre
       zoom: city ? city.zoom : 12,
       minZoom: city ? city.minZoom : 10,  
     })
@@ -86,6 +87,7 @@ export function AdminCities() {
   }
 
   const handleSubmit = async () => {
+    const errors = []
     try {
       if (!formData.name) errors.push('El nombre es obligatorio')
       if (!formData.center) errors.push('Selecciona el centro de la ciudad')
@@ -98,7 +100,11 @@ export function AdminCities() {
         return
       }
 
-      await citiesService.create(formData)
+      if (modalMode === 'edit' && formData.id) {
+        await citiesService.update(formData.id, formData)
+      } else {
+        await citiesService.create(formData)
+      }
       handleCloseModal()
       loadCities()
     } catch (err) {
@@ -140,7 +146,7 @@ const mapConfig = useMemo(() => {
     }
   }
   return defaultCity
-}, [formData.center, formData.zoom, formData.bounds])
+}, [formData.center, formData.zoom, formData.bounds, formData.minZoom])
 
   if (loading) return <div className="loading">Cargando ciudades...</div>
   if (error) return <div className="error">{error}</div>
@@ -149,36 +155,40 @@ const mapConfig = useMemo(() => {
     <div className="admin-cities">
       <div className="page-header">
         <h1>Gestión de Ciudades</h1>
-        <Button onClick={handleOpenModal}>
+        <Button onClick={() => handleOpenModal(null, 'create')}>
           Crear Ciudad
         </Button>
       </div>
 
-      <div className="cities-grid">
-        {cities.map(city => (
-          console.log('City:', city),
-          <a onClick={() => handleOpenModal(city, 'edit')} key={city.id} className="city-card">
-          <div key={city.id} className="city-card">
-            <h3 className="city-name">{city.name}</h3>
-            <div className="city-info">
-              <div className="city-map">
-              <MapWrapper
-              city={city}
-              mode="preview"
-              height="300px"
-              width="auto"
-            />
+      {cities.length === 0 ? (
+        <div className="empty-state">
+          <p>No hay ciudades registradas</p>
+          <p className="empty-hint">Crea la primera ciudad para comenzar a gestionar obras</p>
+        </div>
+      ) : (
+        <div className="cities-grid">
+          {cities.map(city => (
+            <div key={city.id} className="city-card" onClick={() => handleOpenModal(city, 'edit')}>
+              <h3 className="city-name">{city.name}</h3>
+              <div className="city-info">
+                <div className="city-map">
+                  <MapWrapper
+                    city={city}
+                    mode="preview"
+                    height="300px"
+                    width="auto"
+                  />
+                </div>
+                <div className="city-details">
+                  <p><strong>Centro:</strong> {city.center[1]?.toFixed(4)}, {city.center[0]?.toFixed(4)}</p>
+                  <p><strong>Zoom:</strong> {city.zoom}</p>
+                  <p><strong>Límites:</strong> SW[{city.bounds?.[0]?.[1]?.toFixed(4)}, {city.bounds?.[0]?.[0]?.toFixed(4)}] NE[{city.bounds?.[1]?.[1]?.toFixed(4)}, {city.bounds?.[1]?.[0]?.toFixed(4)}]</p>
+                </div>
+              </div>
             </div>
-            <div className="city-details">
-              <p><strong>Centro:</strong> {city.center[1].toFixed(4)}, {city.center[0].toFixed(4)}</p>
-              <p><strong>Zoom:</strong> {city.zoom}</p>
-              <p><strong>Límites:</strong> SW[{city.bounds[0][1].toFixed(4)}, {city.bounds[0][0].toFixed(4)}] NE[{city.bounds[1][1].toFixed(4)}, {city.bounds[1][0].toFixed(4)}]</p>
-            </div>
-            </div>
-          </div>
-          </a>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       <Modal
         isOpen={showModal}

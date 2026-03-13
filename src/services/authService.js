@@ -1,61 +1,61 @@
-// Simulación de API de autenticación
-// En el futuro, estas funciones realizarán llamadas HTTP reales
-
-const MOCK_USERS = [
-  { id: '1', email: 'admin@test.com', password: 'admin123', name: 'Admin Principal', role: 'ADMIN', status: 'ACTIVE' },
-  { id: '2', email: 'user@test.com', password: 'user123', name: 'Usuario Test', role: 'USER', status: 'ACTIVE' },
-  { id: '3', email: 'blocked@test.com', password: 'blocked123', name: 'Usuario Bloqueado', role: 'USER', status: 'BLOCKED' },
-]
+// Servicio de autenticación - Comunicación con la API real
+import { post, setAuthToken } from './apiClient';
 
 export const authService = {
+  /**
+   * Inicia sesión con email y contraseña
+   * @param {string} email - Email del usuario
+   * @param {string} password - Contraseña del usuario
+   * @returns {Promise<{token: string, user: object}>}
+   */
   async login(email, password) {
-    // Simular delay de red
-    await new Promise(resolve => setTimeout(resolve, 500))
-
-    const user = MOCK_USERS.find(u => u.email === email && u.password === password)
-
-    if (!user) {
-      throw new Error('Credenciales inválidas')
+    try {
+      const result = await post('/auth/login', { email, password });
+      
+      // Guardar el token en el cliente HTTP
+      if (result.token) {
+        setAuthToken(result.token);
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('Error en login:', error);
+      throw error;
     }
-
-    if (user.status === 'BLOCKED') {
-      throw new Error('Usuario bloqueado')
-    }
-
-    // Generar token simulado
-    const token = `mock-jwt-token-${user.id}-${Date.now()}`
-
-    // No devolver la contraseña
-    const { password: _, ...userWithoutPassword } = user
-
-    return { token, user: userWithoutPassword }
   },
 
+  /**
+   * Cierra la sesión del usuario
+   * @returns {Promise<{success: boolean}>}
+   */
   async logout() {
-    await new Promise(resolve => setTimeout(resolve, 200))
-    return { success: true }
+    try {
+      setAuthToken(null);
+      return { success: true };
+    } catch (error) {
+      console.error('Error en logout:', error);
+      // Siempre retornar success en logout aunque falle
+      return { success: true };
+    }
   },
 
+  /**
+   * Valida el token de autenticación
+   * @param {string} token - Token JWT a validar
+   * @returns {Promise<object>} Datos del usuario
+   */
   async validateToken(token) {
+    // Nota: El token se valida automáticamente en cada request
+    // Este método puede usarse para verificar la sesión al iniciar la app
     if (!token) {
-      throw new Error('Token no proporcionado')
+      throw new Error('Token no proporcionado');
     }
-
-    // Verificar formato básico del token mock
-    if (!token.startsWith('mock-jwt-token-')) {
-      throw new Error('Token inválido')
-    }
-
-    // Extraer ID del usuario del token
-    const userId = token.split('-')[3]
-
-    const user = MOCK_USERS.find(u => u.id === userId)
-
-    if (!user || user.status === 'BLOCKED') {
-      throw new Error('Usuario no encontrado o bloqueado')
-    }
-
-    const { password: _, ...userWithoutPassword } = user
-    return userWithoutPassword
+    
+    // El token se pasa en el header de autorización automáticamente
+    // por el apiClient, pero aquí no hay endpoint de validación específico
+    // El manejo de token inválido se hace en el apiClient
+    throw new Error('Funcionalidad no implementada en el backend');
   },
-}
+};
+
+export default authService;

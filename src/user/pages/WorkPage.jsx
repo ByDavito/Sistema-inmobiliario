@@ -3,29 +3,24 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 import { worksService } from "../../services/worksService";
 import { citiesService } from "../../services/citiesService";
+import { typesService } from "../../services/typesService";
 import { Button } from "../../shared/components/Button";
 import { Input } from "../../shared/components/Input";
 import { Select } from "../../shared/components/Select";
 import { MapWrapper } from "../../components/MapWrapper";
 import { ImageUploader } from "../components/ImageUploader";
+import { TypeInput } from "../../shared/components/TypeInput";
 import { Check, MapPin } from "lucide-react";
 import "./WorkPage.css";
 
 const STATUS_OPTIONS = [
-  { value: "ACTIVE", label: "Activo" },
-  { value: "INACTIVE", label: "Inactivo" },
-  { value: "IN_PROGRESS", label: "En progreso" },
-  { value: "COMPLETED", label: "Completado" },
-];
-
-const PROPERTY_TYPE_OPTIONS = [
-  { value: "casa", label: "Casa" },
-  { value: "departamento", label: "Departamento" },
-  { value: "terreno", label: "Terreno" },
-  { value: "local", label: "Local comercial" },
-  { value: "oficina", label: "Oficina" },
-  { value: "edificio", label: "Edificio" },
-  { value: "galpon", label: "Galpón" },
+  { value: "En construcción", label: "En construcción" },
+  { value: "Alquilado", label: "Alquilado" },
+  { value: "Se alquila", label: "Se alquila" },
+  { value: "Se vende", label: "Se vende" },
+  { value: "Vendido", label: "Vendido" },
+  { value: "Terminado", label: "Terminado" },
+  { value: "En pausa", label: "En pausa" },
 ];
 
 export function WorkPage({ mode = "create" }) {
@@ -40,6 +35,8 @@ export function WorkPage({ mode = "create" }) {
 
   const [cities, setCities] = useState([]);
   const [citiesLoading, setCitiesLoading] = useState(true);
+  const [types, setTypes] = useState([]);
+  const [typesLoading, setTypesLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [workLoading, setWorkLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -49,7 +46,8 @@ export function WorkPage({ mode = "create" }) {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    status: "ACTIVE",
+    status: "En construcción",
+    activo: true,
     propertyType: "",
     coveredSurface: "",
     totalSurface: "",
@@ -61,6 +59,7 @@ export function WorkPage({ mode = "create" }) {
   });
   const [location, setLocation] = useState(null);
   const [images, setImages] = useState([]);
+  const [deletedImageIds, setDeletedImageIds] = useState([]);
 
   // Cleanup al desmontar
   useEffect(() => {
@@ -88,6 +87,21 @@ export function WorkPage({ mode = "create" }) {
     loadCities();
   }, []);
 
+  // Cargar tipos de propiedad
+  useEffect(() => {
+    const loadTypes = async () => {
+      try {
+        const data = await typesService.getAll();
+        setTypes(data);
+        setTypesLoading(false);
+      } catch (err) {
+        console.error('Error al cargar tipos:', err);
+        setTypesLoading(false);
+      }
+    };
+    loadTypes();
+  }, []);
+
   // Cargar datos de la obra si es edición
   useEffect(() => {
     const loadWork = async () => {
@@ -100,7 +114,8 @@ export function WorkPage({ mode = "create" }) {
           setFormData({
             name: work.name || "",
             description: work.description || "",
-            status: work.status || "ACTIVE",
+            status: work.status || "En construcción",
+            activo: work.activo !== undefined ? work.activo : true,
             propertyType: work.propertyType || "",
             coveredSurface: work.coveredSurface || "",
             totalSurface: work.totalSurface || "",
@@ -160,12 +175,72 @@ export function WorkPage({ mode = "create" }) {
     try {
       if (!location) {
         setError("Debes seleccionar una ubicación");
+        setSaving(false);
+        return;
+      }
+
+      // Verificar si hay imágenes eliminadas en modo edición
+      if (mode === 'edit' && deletedImageIds.length > 0) {
+        const confirmDelete = window.confirm(
+          `Has eliminado ${deletedImageIds.length} imagen(es). ¿Estás seguro de que quieres eliminarlas? Esta acción no se puede deshacer.`
+        );
+        
+        if (!confirmDelete) {
+          setSaving(false);
+          return; // Cancelar toda la edición
+        }
+      }
+
+      // Determinar el tipo de propiedad
+      let propertyTypeId = formData.propertyType;
+      
+      // Verificar si el valor es un ID existente o un nombre nuevo
+      if (formData.propertyType) {
+        // Buscar si ya existe el tipo por ID o por nombre
+        const existingType = types.find(t => 
+          String(t.id) === String(formData.propertyType) || 
+          t.nombre.toLowerCase() === formData.propertyType.toLowerCase()
+        );
+        
+        if (existingType) {
+          propertyTypeId = existingType.id;
+        } else {
+          // Es un nuevo tipo - preguntar si quiere crearlo
+          const confirmCreate = window.confirm(
+            `El tipo "${formData.propertyType}" no existe. ¿Querés crearlo?`
+          );
+          
+          if (confirmCreate) {
+            try {
+              const newType = await typesService.create(formData.propertyType);
+              propertyTypeId = newType.id;
+              // Actualizar la lista de tipos
+              const updatedTypes = await typesService.getAll();
+              setTypes(updatedTypes);
+            } catch (typeErr) {
+              setError(`Error al crear tipo: ${typeErr.message}`);
+              setSaving(false);
+              return;
+            }
+          } else {
+            setSaving(false);
+            return;
+          }
+        }
+      }
+
+      if (!propertyTypeId) {
+        setError("Debes seleccionar o crear un tipo de propiedad");
+        setSaving(false);
         return;
       }
 
       const workData = {
         userId: user.id,
-        ...formData,
+        name: formData.name,
+        description: formData.description,
+        status: formData.status,
+        propertyType: propertyTypeId,
         cityId: cityId,
         coveredSurface: formData.coveredSurface
           ? Number(formData.coveredSurface)
@@ -175,9 +250,13 @@ export function WorkPage({ mode = "create" }) {
           : null,
         bedrooms: formData.bedrooms ? Number(formData.bedrooms) : null,
         bathrooms: formData.bathrooms ? Number(formData.bathrooms) : null,
+        hasPatio: formData.hasPatio,
+        hasGarage: formData.hasGarage,
+        neighborhood: formData.neighborhood,
         lat: location.lat,
         lng: location.lng,
         images: images,
+        deletedImageIds: deletedImageIds,
       };
 
       if (mode === "edit" && workId) {
@@ -186,7 +265,9 @@ export function WorkPage({ mode = "create" }) {
         await worksService.create(workData);
       }
 
-      navigate("/obras");
+      // Pequeño delay para asegurar que el estado se actualice
+      await new Promise(resolve => setTimeout(resolve, 100))
+      navigate("/works");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -195,7 +276,7 @@ export function WorkPage({ mode = "create" }) {
   };
 
   const handleCancel = () => {
-    navigate("/obras");
+    navigate("/works");
   };
 
   if (workLoading) {
@@ -249,7 +330,7 @@ export function WorkPage({ mode = "create" }) {
               ) : cityId ? (
                 <div className="map-with-info">
                   <MapWrapper
-                    city={cities.find((c) => c.id === cityId)}
+                    city={cities.find((c) => String(c.id) === String(cityId))}
                     mode="edit"
                     onMapClick={handleMapClick}
                     height="400px"
@@ -337,14 +418,12 @@ export function WorkPage({ mode = "create" }) {
               </div>
 
               <div className="form-group">
-                <Select
+                <TypeInput
                   label="Tipo de propiedad"
                   value={formData.propertyType}
-                  onChange={(e) =>
-                    setFormData({ ...formData, propertyType: e.target.value })
-                  }
-                  options={PROPERTY_TYPE_OPTIONS}
-                  placeholder="Seleccionar tipo"
+                  onChange={(value) => setFormData({ ...formData, propertyType: value })}
+                  options={types.map(t => ({ value: t.id, label: t.nombre }))}
+                  placeholder="Escribí o seleccioná un tipo"
                   required
                 />
               </div>
@@ -444,7 +523,11 @@ export function WorkPage({ mode = "create" }) {
               </div>
             </div>
 
-            <ImageUploader images={images} onImagesChange={setImages} />
+            <ImageUploader 
+              images={images} 
+              onImagesChange={setImages}
+              onDeletedChange={setDeletedImageIds}
+            />
 
             <div className="location-summary">
               <h3>Ubicación confirmada</h3>

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
-import { authService } from '../services/authService'
 import { Input } from '../shared/components/Input'
 import { Button } from '../shared/components/Button'
 import './Login.css'
@@ -20,17 +19,17 @@ export function Login() {
     setLoading(true)
 
     try {
-      const { token, user } = await authService.login(email, password)
-      login(token, user)
-
+      // Usar el login del AuthContext que ahora es async
+      const result = await login(email, password)
+      
       // Redirect según rol
-      if (user.role === 'ADMIN') {
+      if (result.user.role === 'ADMIN') {
         navigate('/admin/users')
       } else {
         navigate('/works')
       }
     } catch (err) {
-      setError(err.message)
+      setError(err.message || 'Error al iniciar sesión')
     } finally {
       setLoading(false)
     }
@@ -39,7 +38,7 @@ export function Login() {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h1 className="login-title">Sistema de Obras</h1>
+        <h1 className="login-title">Sistema de Arquitectos</h1>
         <p className="login-subtitle">Ingresa con tu cuenta</p>
 
         <form onSubmit={handleSubmit} className="login-form">
@@ -69,15 +68,15 @@ export function Login() {
         </form>
 
         <div className="login-demo">
-          <p className="demo-title">Cuentas de prueba:</p>
+          <p className="demo-title">Credenciales del admin:</p>
           <div className="demo-accounts">
             <div className="demo-account">
-              <strong>Admin:</strong> admin@test.com / admin123
-            </div>
-            <div className="demo-account">
-              <strong>Usuario:</strong> user@test.com / user123
+              <strong>Admin:</strong> davidracca02@gmail.com / davito123
             </div>
           </div>
+          <p className="demo-note">
+            (Estas credenciales se crean automáticamente al iniciar la API si no existe ningún usuario)
+          </p>
         </div>
       </div>
     </div>

@@ -10,6 +10,32 @@
   color: var(--text-secondary);
 }
 
+.error {
+  color: var(--error-text);
+  background-color: var(--error-bg);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  color: var(--text-secondary);
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.empty-hint {
+  margin-top: 0.5rem !important;
+  font-size: 0.9rem !important;
+  color: var(--text-muted);
+}
+
 .cities-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

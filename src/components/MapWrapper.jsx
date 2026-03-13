@@ -145,6 +145,22 @@ export function MapWrapper({
     setIsMapReady(true)
   }, [])
 
+  // Efecto para obtener el zoom del mapa periódicamente
+  useEffect(() => {
+    if (!isMapReady || !mapRef.current || mode !== 'edit') return
+
+    const intervalId = setInterval(() => {
+      if (mapRef.current && mapRef.current.getZoom) {
+        const zoom = mapRef.current.getZoom()
+        if (zoom !== undefined && zoom !== currentZoom) {
+          setCurrentZoom(zoom)
+        }
+      }
+    }, 500)
+
+    return () => clearInterval(intervalId)
+  }, [isMapReady, mode, currentZoom])
+
   // Efecto para centrar el mapa en el punto seleccionado
   useEffect(() => {
     if (!selectedPoint || !mapRef.current || !isMapReady) return
@@ -225,8 +241,10 @@ export function MapWrapper({
             borderRadius: '4px',
             fontSize: '14px',
             zIndex: 1000,
+            pointerEvents: 'none',
           }}>
-            Zoom: {currentZoom.toFixed(1)}
+            <div>Zoom actual: <strong>{currentZoom.toFixed(1)}</strong></div>
+            {city.minZoom && <div style={{ fontSize: '12px', opacity: 0.8 }}>Min: {city.minZoom}</div>}
           </div>
         )}
       </MapErrorBoundary>

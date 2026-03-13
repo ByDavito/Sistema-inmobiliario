@@ -1,80 +1,140 @@
-// Simulación de API de ciudades
-
-let mockCities = [
-  {
-    id: '1',
-    name: 'Buenos Aires',
-    center: [-58.3816, -34.6037],
-    bounds: [[-58.5, -34.7], [-58.2, -34.5]],
-    zoom: 12,
-    minZoom: 10,
-    maxZoom: 18,
-  },
-  {
-    id: '2',
-    name: 'Córdoba',
-    center: [-64.1888, -31.4201],
-    bounds: [[-64.3, -31.55], [-64.05, -31.3]],
-    zoom: 13,
-    minZoom: 10,
-    maxZoom: 18,
-  },
-  {
-    id: '3',
-    name: 'Rosario',
-    center: [-60.6393, -32.9468],
-    bounds: [[-60.75, -33.05], [-60.55, -32.85]],
-    zoom: 13,
-    minZoom: 10,
-    maxZoom: 18,
-  },
-]
-
-let nextId = 4
+// Servicio de ciudades - Comunicación con la API real
+import { get, post, put, del } from './apiClient';
 
 export const citiesService = {
+  /**
+   * Obtiene todas las ciudades
+   * @returns {Promise<Array>} Lista de ciudades
+   */
   async getAll() {
-    await new Promise(resolve => setTimeout(resolve, 300))
-    return [...mockCities]
-  },
-
-  async getById(id) {
-    await new Promise(resolve => setTimeout(resolve, 200))
-    const city = mockCities.find(c => c.id === id)
-    if (!city) throw new Error('Ciudad no encontrada')
-    return { ...city }
-  },
-
-  async create(data) {
-    await new Promise(resolve => setTimeout(resolve, 400))
-    const newCity = {
-      id: String(nextId++),
-      name: data.name,
-      center: data.center,
-      bounds: data.bounds,
-      zoom: data.zoom,
-      minZoom: data.minZoom || 10,
-      maxZoom: data.maxZoom || 18,
+    try {
+      const cities = await get('/cities');
+      // Transformar datos del backend al formato del frontend
+      // Backend usa: nombre, CenterLat, CenterLng, Zoom, MinZoom, BoundsSWLat, BoundsSWLng, BoundsNELat, BoundsNELng
+      if (cities && Array.isArray(cities)) {
+        return cities.map(city => ({
+          id: city.id,
+          name: city.nombre,
+          center: city.CenterLat != null && city.CenterLng != null 
+            ? [city.CenterLng, city.CenterLat] 
+            : null,
+          zoom: city.Zoom,
+          minZoom: city.MinZoom != null ? city.MinZoom : 10,
+          maxZoom: 18,
+          bounds: city.BoundsSWLat != null && city.BoundsNELat != null
+            ? [[city.BoundsSWLng, city.BoundsSWLat], [city.BoundsNELng, city.BoundsNELat]]
+            : null,
+        }));
+      }
+      return [];
+    } catch (error) {
+      console.error('Error al obtener ciudades:', error);
+      return [];
     }
-    mockCities.push(newCity)
-    return { ...newCity }
   },
 
+  /**
+   * Obtiene una ciudad por su ID
+   * @param {string} id - ID de la ciudad
+   * @returns {Promise<object>} Datos de la ciudad
+   */
+  async getById(id) {
+    try {
+      const city = await get(`/cities/${id}`);
+      // Transformar datos del backend al formato del frontend
+      if (city) {
+        return {
+          id: city.id,
+          name: city.nombre,
+          center: city.CenterLat != null && city.CenterLng != null 
+            ? [city.CenterLng, city.CenterLat] 
+            : null,
+          zoom: city.Zoom,
+          minZoom: city.MinZoom != null ? city.MinZoom : 10,
+          maxZoom: 18,
+          bounds: city.BoundsSWLat != null && city.BoundsNELat != null
+            ? [[city.BoundsSWLng, city.BoundsSWLat], [city.BoundsNELng, city.BoundsNELat]]
+            : null,
+        };
+      }
+      return city;
+    } catch (error) {
+      console.error(`Error al obtener ciudad ${id}:`, error);
+      throw new Error('Ciudad no encontrada');
+    }
+  },
+
+  /**
+   * Crea una nueva ciudad
+   * @param {object} data - Datos de la ciudad (formato frontend)
+   * @returns {Promise<object>} Ciudad creada
+   */
+  async create(data) {
+    try {
+      // Transformar datos al formato que espera el backend
+      const cityData = {
+        nombre: data.name,
+        centerLat: data.center ? data.center[1] : null,
+        centerLng: data.center ? data.center[0] : null,
+        zoom: data.zoom,
+        minZoom: data.minZoom,
+        boundsSWLat: data.bounds ? data.bounds[0][1] : null,
+        boundsSWLng: data.bounds ? data.bounds[0][0] : null,
+        boundsNELat: data.bounds ? data.bounds[1][1] : null,
+        boundsNELng: data.bounds ? data.bounds[1][0] : null,
+      };
+      
+      const city = await post('/cities', cityData);
+      return city;
+    } catch (error) {
+      console.error('Error al crear ciudad:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Actualiza una ciudad existente
+   * @param {string} id - ID de la ciudad
+   * @param {object} data - Datos a actualizar (formato frontend)
+   * @returns {Promise<object>} Ciudad actualizada
+   */
   async update(id, data) {
-    await new Promise(resolve => setTimeout(resolve, 300))
-    const index = mockCities.findIndex(c => c.id === id)
-    if (index === -1) throw new Error('Ciudad no encontrada')
-
-    mockCities[index] = { ...mockCities[index], ...data }
-    return { ...mockCities[index] }
+    try {
+      // Transformar datos al formato que espera el backend
+      const cityData = {
+        nombre: data.name,
+        centerLat: data.center ? data.center[1] : null,
+        centerLng: data.center ? data.center[0] : null,
+        zoom: data.zoom,
+        minZoom: data.minZoom,
+        boundsSWLat: data.bounds ? data.bounds[0][1] : null,
+        boundsSWLng: data.bounds ? data.bounds[0][0] : null,
+        boundsNELat: data.bounds ? data.bounds[1][1] : null,
+        boundsNELng: data.bounds ? data.bounds[1][0] : null,
+      };
+      
+      const city = await put(`/cities/${id}`, cityData);
+      return city;
+    } catch (error) {
+      console.error(`Error al actualizar ciudad ${id}:`, error);
+      throw error;
+    }
   },
 
+  /**
+   * Elimina una ciudad
+   * @param {string} id - ID de la ciudad
+   * @returns {Promise<{success: boolean}>}
+   */
   async delete(id) {
-    await new Promise(resolve => setTimeout(resolve, 300))
-    const index = mockCities.findIndex(c => c.id === id)
-    if (index === -1) throw new Error('Ciudad no encontrada')
-
-    mockCities.splice(index, 1)
-    return { success: true }
+    try {
+      await del(`/cities/${id}`);
+      return { success: true };
+    } catch (error) {
+      console.error(`Error al eliminar ciudad ${id}:`, error);
+      throw error;
+    }
   },
-}
+};
+
+export default citiesService;
