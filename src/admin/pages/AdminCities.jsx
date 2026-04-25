@@ -91,9 +91,10 @@ export function AdminCities() {
     try {
       if (!formData.name) errors.push('El nombre es obligatorio')
       if (!formData.center) errors.push('Selecciona el centro de la ciudad')
-      if (!formData.bounds) errors.push('Selecciona los límites de la ciudad')
-      if (!formData.zoom || formData.zoom < 1) errors.push('El zoom debe ser mayor a 0')
-      if (!formData.minZoom || formData.minZoom < 1) errors.push('El zoom mínimo debe ser mayor a 0')
+      // Solo pedir bounds al crear nueva ciudad, no al editar
+      if (modalMode === 'create' && !formData.bounds) errors.push('Selecciona los límites de la ciudad')
+      if (!formData.zoom || formData.zoom <= 0) errors.push('El zoom debe ser mayor a 0')
+      if (!formData.minZoom || formData.minZoom <= 0) errors.push('El zoom mínimo debe ser mayor a 0')
       
       if (errors.length > 0) {
         alert(errors.join('\n'))
@@ -210,16 +211,18 @@ const mapConfig = useMemo(() => {
             <Input
               label="Zoom inicial"
               type="number"
+              step="0.1"
               value={formData.zoom}
-              onChange={(e) => setFormData({ ...formData, zoom: parseInt(e.target.value) })}
+              onChange={(e) => setFormData({ ...formData, zoom: parseFloat(e.target.value) })}
               required
             />
 
             <Input
               label="Zoom mínimo"
               type="number"
+              step="0.1"
               value={formData.minZoom}
-              onChange={(e) => setFormData({ ...formData, minZoom: parseInt(e.target.value) })}
+              onChange={(e) => setFormData({ ...formData, minZoom: parseFloat(e.target.value) })}
               required
             />
 

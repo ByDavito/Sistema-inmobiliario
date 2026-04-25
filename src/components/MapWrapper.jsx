@@ -125,6 +125,7 @@ export function MapWrapper({
   tooltipComponent,
   tooltipContent,
   tooltipStyles,
+  tooltipOnClick = false,
   selectedPoint,
 }) {
   const [currentZoom, setCurrentZoom] = useState(city?.zoom || 10)
@@ -227,6 +228,7 @@ export function MapWrapper({
           tooltipComponent={tooltipComponent}
           tooltipContent={tooltipContent}
           tooltipStyles={tooltipStyles}
+          tooltipOnClick={tooltipOnClick}
         />
         
         {/* Zoom overlay - solo en modo edit */}

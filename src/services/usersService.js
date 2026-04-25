@@ -34,7 +34,7 @@ export const usersService = {
 
   /**
    * Crea un nuevo usuario
-   * @param {object} data - Datos del usuario (email, password, role)
+   * @param {object} data - Datos del usuario (email, password, role, dominio)
    * @returns {Promise<object>} Usuario creado
    */
   async create(data) {
@@ -50,7 +50,7 @@ export const usersService = {
   /**
    * Actualiza un usuario existente
    * @param {string} id - ID del usuario
-   * @param {object} data - Datos a actualizar (name, email, role, status)
+   * @param {object} data - Datos a actualizar (name, email, role, status, dominio)
    * @returns {Promise<object>} Usuario actualizado
    */
   async update(id, data) {

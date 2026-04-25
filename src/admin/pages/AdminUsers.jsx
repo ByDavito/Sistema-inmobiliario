@@ -16,6 +16,7 @@ export function AdminUsers() {
     email: '',
     password: '',
     role: 'USER',
+    dominio: '',
   })
 
   const loadUsers = async () => {
@@ -40,6 +41,7 @@ export function AdminUsers() {
         email: user.email,
         password: '',
         role: user.role,
+        dominio: user.dominio || '',
       })
     } else {
       setEditingUser(null)
@@ -47,6 +49,7 @@ export function AdminUsers() {
         email: '',
         password: '',
         role: 'USER',
+        dominio: '',
       })
     }
     setShowModal(true)
@@ -55,7 +58,7 @@ export function AdminUsers() {
   const handleCloseModal = () => {
     setShowModal(false)
     setEditingUser(null)
-    setFormData({ email: '', password: '', role: 'USER' })
+    setFormData({ email: '', password: '', role: 'USER', dominio: '' })
   }
 
   const handleSubmit = async () => {
@@ -64,6 +67,7 @@ export function AdminUsers() {
         await usersService.update(editingUser.id, {
           email: formData.email,
           role: formData.role,
+          dominio: formData.dominio,
         })
       } else {
         if (!formData.password) {
@@ -111,6 +115,7 @@ export function AdminUsers() {
             <thead>
               <tr>
                 <th>Email</th>
+                <th>Dominio</th>
                 <th>Rol</th>
                 <th>Estado</th>
                 <th>Acciones</th>
@@ -120,6 +125,11 @@ export function AdminUsers() {
               {users.map(user => (
                 <tr key={user.id}>
                   <td>{user.email}</td>
+                  <td>
+                    <span className="dominio-value">
+                      {user.dominio || '-'}
+                    </span>
+                  </td>
                   <td>
                     <span className={`role-badge role-${user.role?.toLowerCase()}`}>
                       {user.role}
@@ -182,6 +192,13 @@ export function AdminUsers() {
             { value: 'ADMIN', label: 'Administrador' },
           ]}
           required
+        />
+        <Input
+          label="Dominio (CORS)"
+          type="text"
+          value={formData.dominio}
+          onChange={(e) => setFormData({ ...formData, dominio: e.target.value })}
+          placeholder="https://midominio.com o http://localhost:5173"
         />
       </Modal>
     </div>

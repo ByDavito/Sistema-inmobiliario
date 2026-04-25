@@ -30,27 +30,28 @@ export const worksService = {
     try {
       const works = await get('/works');
       // Transformar datos del backend al formato del frontend
+      // Backend puede devolver columnas en mayúsculas o minúsculas (MySQL)
       if (works && Array.isArray(works)) {
         return works.map(work => ({
           id: work.id,
-          userId: work.FK_ID_Usuario,
-          name: work.Nombre,
-          description: work.Descripcion,
-          cityId: work.FK_ID_Ciudad,
-          neighborhood: work.Barrio || '',
-          lng: work.Longitud,
-          lat: work.Latitud,
-          status: work.Estado, // Estado del inmueble (en construcción, alquilado, etc.)
-          activo: work.Activo, // Boolean para mostrar/ocultar en web
-          propertyType: work.tipoNombre || '',
-          coveredSurface: work.SuperficieCubierta,
-          totalSurface: work.SuperficieTotal,
-          bedrooms: work.Habitaciones,
-          bathrooms: work.Baños,
-          hasPatio: work.Patio,
-          hasGarage: work.Cochera,
-          cityName: work.ciudadNombre,
-          images: this.transformMedia(work.medios || []), // Transformar medios al formato del frontend
+          userId: work.FK_ID_Usuario ?? work.fk_id_usuario,
+          name: work.Nombre ?? work.nombre,
+          description: work.Descripcion ?? work.descripcion,
+          cityId: work.FK_ID_Ciudad ?? work.fk_id_ciudad,
+          neighborhood: (work.Barrio ?? work.barrio) || '',
+          lng: Number(work.Longitud ?? work.longitud),
+          lat: Number(work.Latitud ?? work.latitud),
+          status: work.Estado ?? work.estado,
+          activo: work.Activo ?? work.activo,
+          propertyType: work.tipoNombre ?? work.tiponombre ?? '',
+          coveredSurface: Number(work.SuperficieCubierta ?? work.superficiecubierta),
+          totalSurface: Number(work.SuperficieTotal ?? work.superficietotal),
+          bedrooms: Number(work.Habitaciones ?? work.habitaciones),
+          bathrooms: Number(work.Baños ?? work.banos),
+          hasPatio: work.Patio ?? work.patio,
+          hasGarage: work.Cochera ?? work.cochera,
+          cityName: work.ciudadNombre ?? work.ciudadnombre,
+          images: this.transformMedia(work.medios || []),
         }));
       }
       return [];
@@ -69,27 +70,28 @@ export const worksService = {
     try {
       const work = await get(`/works/${id}`);
       // Transformar datos del backend al formato del frontend
+      // Backend puede devolver columnas en mayúsculas o minúsculas (MySQL)
       if (work) {
         return {
           id: work.id,
-          userId: work.FK_ID_Usuario,
-          name: work.Nombre,
-          description: work.Descripcion,
-          cityId: work.FK_ID_Ciudad,
-          neighborhood: work.Barrio || '',
-          lng: work.Longitud,
-          lat: work.Latitud,
-          status: work.Estado,
-          activo: work.Activo,
-          propertyType: work.tipoNombre || '',
-          coveredSurface: work.SuperficieCubierta,
-          totalSurface: work.SuperficieTotal,
-          bedrooms: work.Habitaciones,
-          bathrooms: work.Baños,
-          hasPatio: work.Patio,
-          hasGarage: work.Cochera,
-          cityName: work.ciudadNombre,
-          images: this.transformMedia(work.medios || []), // Transformar medios al formato del frontend
+          userId: work.FK_ID_Usuario ?? work.fk_id_usuario,
+          name: work.Nombre ?? work.nombre,
+          description: work.Descripcion ?? work.descripcion,
+          cityId: work.FK_ID_Ciudad ?? work.fk_id_ciudad,
+          neighborhood: (work.Barrio ?? work.barrio) || '',
+          lng: Number(work.Longitud ?? work.longitud),
+          lat: Number(work.Latitud ?? work.latitud),
+          status: work.Estado ?? work.estado,
+          activo: work.Activo ?? work.activo,
+          propertyType: work.tipoNombre ?? work.tiponombre ?? '',
+          coveredSurface: Number(work.SuperficieCubierta ?? work.superficiecubierta),
+          totalSurface: Number(work.SuperficieTotal ?? work.superficietotal),
+          bedrooms: Number(work.Habitaciones ?? work.habitaciones),
+          bathrooms: Number(work.Baños ?? work.banos),
+          hasPatio: work.Patio ?? work.patio,
+          hasGarage: work.Cochera ?? work.cochera,
+          cityName: work.ciudadNombre ?? work.ciudadnombre,
+          images: this.transformMedia(work.medios || []),
         };
       }
       return work;
@@ -367,7 +369,7 @@ export const worksService = {
    * @param {number} quality - Calidad de compresión (0-1)
    * @returns {Promise<string>} Imagen en base64
    */
-  compressImage(file, maxWidth = 600, quality = 0.5) {
+  compressImage(file, maxWidth = 1920, quality = 1) {
     return new Promise((resolve, reject) => {
       // Verificar tamaño del archivo (max 5MB)
       if (file.size > 5 * 1024 * 1024) {

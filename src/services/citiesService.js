@@ -10,19 +10,22 @@ export const citiesService = {
     try {
       const cities = await get('/cities');
       // Transformar datos del backend al formato del frontend
-      // Backend usa: nombre, CenterLat, CenterLng, Zoom, MinZoom, BoundsSWLat, BoundsSWLng, BoundsNELat, BoundsNELng
+      // Backend puede devolver columnas en mayúsculas o minúsculas (MySQL)
       if (cities && Array.isArray(cities)) {
         return cities.map(city => ({
           id: city.id,
           name: city.nombre,
-          center: city.CenterLat != null && city.CenterLng != null 
-            ? [city.CenterLng, city.CenterLat] 
+          center: (city.CenterLat != null || city.centerLat != null) && (city.CenterLng != null || city.centerLng != null) 
+            ? [Number(city.CenterLng ?? city.centerLng), Number(city.CenterLat ?? city.centerLat)] 
             : null,
-          zoom: city.Zoom,
-          minZoom: city.MinZoom != null ? city.MinZoom : 10,
+          zoom: Number(city.Zoom ?? city.zoom ?? 12),
+          minZoom: Number(city.MinZoom ?? city.minZoom ?? 10),
           maxZoom: 18,
-          bounds: city.BoundsSWLat != null && city.BoundsNELat != null
-            ? [[city.BoundsSWLng, city.BoundsSWLat], [city.BoundsNELng, city.BoundsNELat]]
+          bounds: (city.BoundsSWLat != null || city.boundsswlat != null) && (city.BoundsNELat != null || city.boundsnelat != null)
+            ? [
+                [Number(city.BoundsSWLng ?? city.boundsswlng), Number(city.BoundsSWLat ?? city.boundsswlat)],
+                [Number(city.BoundsNELng ?? city.boundsnelng), Number(city.BoundsNELat ?? city.boundsnelat)]
+              ]
             : null,
         }));
       }
@@ -42,18 +45,22 @@ export const citiesService = {
     try {
       const city = await get(`/cities/${id}`);
       // Transformar datos del backend al formato del frontend
+      // Backend puede devolver columnas en mayúsculas o minúsculas (MySQL)
       if (city) {
         return {
           id: city.id,
           name: city.nombre,
-          center: city.CenterLat != null && city.CenterLng != null 
-            ? [city.CenterLng, city.CenterLat] 
+          center: (city.CenterLat != null || city.centerLat != null) && (city.CenterLng != null || city.centerLng != null) 
+            ? [Number(city.CenterLng ?? city.centerLng), Number(city.CenterLat ?? city.centerLat)] 
             : null,
-          zoom: city.Zoom,
-          minZoom: city.MinZoom != null ? city.MinZoom : 10,
+          zoom: Number(city.Zoom ?? city.zoom ?? 12),
+          minZoom: Number(city.MinZoom ?? city.minZoom ?? 10),
           maxZoom: 18,
-          bounds: city.BoundsSWLat != null && city.BoundsNELat != null
-            ? [[city.BoundsSWLng, city.BoundsSWLat], [city.BoundsNELng, city.BoundsNELat]]
+          bounds: (city.BoundsSWLat != null || city.boundsswlat != null) && (city.BoundsNELat != null || city.boundsnelat != null)
+            ? [
+                [Number(city.BoundsSWLng ?? city.boundsswlng), Number(city.BoundsSWLat ?? city.boundsswlat)],
+                [Number(city.BoundsNELng ?? city.boundsnelng), Number(city.BoundsNELat ?? city.boundsnelat)]
+              ]
             : null,
         };
       }
@@ -107,11 +114,15 @@ export const citiesService = {
         centerLng: data.center ? data.center[0] : null,
         zoom: data.zoom,
         minZoom: data.minZoom,
-        boundsSWLat: data.bounds ? data.bounds[0][1] : null,
-        boundsSWLng: data.bounds ? data.bounds[0][0] : null,
-        boundsNELat: data.bounds ? data.bounds[1][1] : null,
-        boundsNELng: data.bounds ? data.bounds[1][0] : null,
       };
+      
+      // Solo agregar bounds si el usuario los seleccionó
+      if (data.bounds) {
+        cityData.boundsSWLat = data.bounds[0][1];
+        cityData.boundsSWLng = data.bounds[0][0];
+        cityData.boundsNELat = data.bounds[1][1];
+        cityData.boundsNELng = data.bounds[1][0];
+      }
       
       const city = await put(`/cities/${id}`, cityData);
       return city;

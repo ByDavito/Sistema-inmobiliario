@@ -1,7 +1,7 @@
 // Cliente HTTP base para comunicarse con la API
 // Manejo centralizado de errores y autenticación
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'https://api.obrabase.com';
 
 // Token de autenticación almacenado en memoria
 let authToken = null;

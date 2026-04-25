@@ -152,8 +152,8 @@ export function WorksPanel() {
   }
 
   const handleMarkerClick = (marker) => {
-    // Navegar directamente a la edición del inmueble
-    navigate(`/obras/${marker.id}/editar`)
+    // Ya no navegamos al hacer click en el marker
+    // La navegación se hace desde el botón "Editar" en el tooltip
   }
 
   const handleEditWorkFromTooltip = (workId) => {
@@ -286,6 +286,7 @@ export function WorksPanel() {
               markerComponent={CustomMarker}
               markerStyles={['./WorksPanel.css']}
               tooltipComponent={CustomToolTip}
+              tooltipOnClick={true}
               selectedPoint={selectedPoint}
             />
           )}
